@@ -34,9 +34,9 @@ Partial Class Form3
         Me.RichTextBox1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.RichTextBox1.Enabled = False
         Me.RichTextBox1.Location = New System.Drawing.Point(12, 29)
         Me.RichTextBox1.Name = "RichTextBox1"
+        Me.RichTextBox1.ReadOnly = True
         Me.RichTextBox1.Size = New System.Drawing.Size(408, 465)
         Me.RichTextBox1.TabIndex = 0
         Me.RichTextBox1.Text = ""
@@ -56,7 +56,7 @@ Partial Class Form3
         Me.Button1.Location = New System.Drawing.Point(345, 498)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(75, 23)
-        Me.Button1.TabIndex = 2
+        Me.Button1.TabIndex = 1
         Me.Button1.Text = "Send"
         Me.Button1.UseVisualStyleBackColor = True
         '

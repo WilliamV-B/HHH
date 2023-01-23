@@ -1,5 +1,5 @@
 ﻿Imports System.IO
-
+Imports System.Threading
 Public Class Form2
     Inherits System.Windows.Forms.Form
 
@@ -9,17 +9,12 @@ Public Class Form2
 
     Dim buttons() As Button
 
+    Dim mainThread As Thread = Thread.CurrentThread
+
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
         Dim h As New Form1
         h.Show()
-        Me.Hide()
-    End Sub
-
-    Private Sub Button1_Click(sender As Object, e As EventArgs)
-        selectedChat = sender.text
-        Dim h As New Form3
-        Form3.myCaller = Me
-        Form3.Show()
+        h.myCaller = Me
         Me.Hide()
 
     End Sub
@@ -53,4 +48,8 @@ Public Class Form2
         Me.Hide()
     End Sub
 
+    Private Sub Form2_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        Application.Exit()
+
+    End Sub
 End Class
