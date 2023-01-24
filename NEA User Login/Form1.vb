@@ -11,8 +11,6 @@ Public Class Form1
     Dim client As TcpClient
     Dim receiveInputThread As New Thread(AddressOf receiveFromServer)
 
-    Dim mainThread As Thread = Thread.CurrentThread
-
     Dim isActive As Boolean = True
 
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
@@ -77,19 +75,18 @@ Public Class Form1
         Dim receiveStream As NetworkStream = client.GetStream
 
         While True
-            Dim input(1000000) As Byte
+            Dim input(100000) As Byte
 
             receiveStream.Read(input, 0, input.Length)
 
-            If input(3) = 3 Then
-                If input(4) = 1 Then
+            If input(3) = 3 Then 'if response from server is in get password mode
+                If input(4) = 1 Then '4th byte is either true or false (1 or 0)
                     MessageBox.Show("Successfully Logged In!")
                     userID = input(5)
                     exitServer()
                     Exit While
                 Else
                     MessageBox.Show("Incorrect Username or Password.")
-
                 End If
 
             End If
@@ -117,5 +114,6 @@ Public Class Form1
 
     Private Sub Form1_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         Application.Exit()
+        End
     End Sub
 End Class

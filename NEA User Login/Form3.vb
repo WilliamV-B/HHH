@@ -81,7 +81,8 @@ Public Class Form3
     End Function
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        myCaller.Show()
+        Dim h As New Form2
+
         Me.Hide()
     End Sub
 
@@ -101,6 +102,7 @@ Public Class Form3
     Private Sub Form3_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
         exitServer()
         Application.Exit()
+        End
     End Sub
 
     Sub exitServer()

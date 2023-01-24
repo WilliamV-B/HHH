@@ -9,6 +9,8 @@ Public Class Add_Chat
 
     Dim users As New Dictionary(Of String, Integer)
 
+    Dim chats As New Dictionary(Of String, Integer)
+
     Private Sub Add_Chat_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
             client = New TcpClient("147.147.67.93", 50005)
@@ -76,4 +78,30 @@ Public Class Add_Chat
         client.GetStream.Write(closeMessage, 0, closeMessage.Length)
 
     End Sub
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+
+        Dim chatName As String = TextBox1.Text
+        Dim message(100000) As Byte
+        Dim currentIndex As Integer = 5
+
+        message(3) = 6
+        message(4) = chatName.Length
+
+        textToArray(chatName, message, currentIndex)
+        For Each user In CheckedListBox1.CheckedItems
+            message(currentIndex) = users(user)
+            currentIndex += 1
+        Next
+
+        client.GetStream.Write(message, 0, currentIndex)
+    End Sub
+
+    Sub textToArray(text As String, ByRef message() As Byte, ByRef startLocation As Integer)
+        For Each character In text
+            message(startLocation) = Asc(character)
+            startLocation += 1
+        Next
+    End Sub
+
 End Class
