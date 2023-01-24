@@ -52,4 +52,9 @@ Public Class Form2
         Application.Exit()
 
     End Sub
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        Dim h As New Add_Chat
+        h.Show()
+    End Sub
 End Class

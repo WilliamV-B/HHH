@@ -6,10 +6,8 @@ Public Class Form1
 
     Public myCaller As Form2
 
-    Dim users As New Dictionary(Of String, String)
     Public userID As Integer = Nothing
 
-    Dim fileReader As New StreamReader("Users.txt")
     Dim client As TcpClient
     Dim receiveInputThread As New Thread(AddressOf receiveFromServer)
 
