@@ -95,7 +95,7 @@ Partial Class Form2
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.PictureBox1)
         Me.Name = "Form2"
-        Me.Text = "Form2"
+        Me.Text = "Main Menu"
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()

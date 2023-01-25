@@ -4,14 +4,14 @@ Imports System.Net.Sockets
 
 Public Class Form2
 
-
     Public myCaller As Form1
 
-    Public selectedChat As String = Nothing
+    Public selectedChat As Integer
 
     Dim buttons() As Button = Nothing
+    Dim buttonsBuffer() As Button = Nothing
 
-    Dim userID As Integer
+    Public userID As Integer
 
     Dim serverListener As New Thread(AddressOf receiveFromServer)
 
@@ -23,8 +23,9 @@ Public Class Form2
         Dim h As New Form1
 
         exitServer()
-
+        h.Location = Me.Location
         h.Show()
+
         h.myCaller = Me
         Me.Hide()
 
@@ -33,16 +34,9 @@ Public Class Form2
     Private Sub Form2_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Label1.Text = "logged in as: " & myCaller.TextBox2.Text
         userID = myCaller.userID
-        'loadButtons()
 
         Try
-            client = New TcpClient("147.147.67.93", 50005)
-
-            CheckForIllegalCrossThreadCalls = False
-
-            serverListener.Start()
-
-            requestChats()
+            startClient()
 
         Catch ex As Exception
             MsgBox("Could not connect to server, make sure it is online.")
@@ -79,10 +73,13 @@ Public Class Form2
     End Sub
 
     Protected Sub ButtonClick(ByVal sender As System.Object, ByVal e As System.EventArgs)
-        selectedChat = sender.text
+        selectedChat = chats(sender.text)
+
         Dim h As New Form3
-        Form3.myCaller = Me
-        Form3.Show()
+
+        h.myCaller = Me
+        h.Show()
+        h.Location = Me.Location
 
         exitServer()
 
@@ -159,12 +156,32 @@ Public Class Form2
     End Sub
 
     Sub checkForNewButtons() Handles Timer1.Tick
-        Dim buttonsBuffer() As Button = Nothing
+
         If buttons IsNot buttonsBuffer Then
+            If buttonsBuffer IsNot Nothing Then
+                For Each button In buttonsBuffer
+                    Controls.Remove(button)
+                Next
+            End If
             For Each button In buttons
                 Controls.Add(button)
             Next
         End If
         buttonsBuffer = buttons
+    End Sub
+
+    Sub startClient()
+
+        client = New TcpClient("147.147.67.93", 50005)
+
+        CheckForIllegalCrossThreadCalls = False
+
+        requestChats()
+
+        If serverListener.IsAlive Then
+            serverListener.Abort()
+        End If
+        serverListener = New Thread(AddressOf receiveFromServer)
+        serverListener.Start()
     End Sub
 End Class

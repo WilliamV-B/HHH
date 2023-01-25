@@ -107,6 +107,8 @@ Public Class Form1
             Dim h As New Form2
             h.myCaller = Me
             h.Show()
+            h.Location = Me.Location
+
             Me.Hide()
             isActive = False
         End If
