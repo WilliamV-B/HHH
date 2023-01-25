@@ -81,7 +81,7 @@ Public Class Form3
     End Function
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        Dim h As New Form2
+        myCaller.Show()
 
         Me.Hide()
     End Sub

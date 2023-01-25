@@ -50,6 +50,7 @@ Public Class Form2
             End
         End Try
     End Sub
+
     Sub exitServer()
         Dim byteStream As NetworkStream = client.GetStream
 
@@ -77,22 +78,6 @@ Public Class Form2
         End While
     End Sub
 
-    'Sub loadButtons()
-    '    Dim sr As New StreamReader("HH.txt")
-    '    Dim newButtons(File.ReadAllLines("HH.txt").Length - 1) As Button
-    '    buttons = newButtons
-
-    '    For n = 0 To File.ReadAllLines("HH.txt").Length - 1
-    '        buttons(n) = New Button
-    '        buttons(n).Location = New Point(12, 93 + 73 * n)
-    '        buttons(n).Size = New Size(400, 67)
-    '        buttons(n).Name = "Button" & n
-    '        buttons(n).Text = sr.ReadLine
-    '        Controls.Add(buttons(n))
-    '        buttons(n).BringToFront()
-    '        AddHandler buttons(n).Click, AddressOf Me.ButtonClick
-    '    Next
-    'End Sub
     Protected Sub ButtonClick(ByVal sender As System.Object, ByVal e As System.EventArgs)
         selectedChat = sender.text
         Dim h As New Form3
@@ -115,6 +100,9 @@ Public Class Form2
     End Sub
 
     Sub requestChats() Handles Button2.Click
+
+        chats = New Dictionary(Of String, Integer)
+
         Dim sendToServer As NetworkStream = client.GetStream
 
         Dim message(5) As Byte
@@ -126,6 +114,8 @@ Public Class Form2
     End Sub
 
     Sub receiveChats(message() As Byte)
+
+        chats = New Dictionary(Of String, Integer)
 
         Dim numberOfChats As Integer = message(5)
         Dim currentIndex As Integer = 6
@@ -158,7 +148,7 @@ Public Class Form2
         For Each chat In chats
             buttons(buttonIndex) = New Button
             buttons(buttonIndex).Location = New Point(12, 93 + 73 * buttonIndex)
-            buttons(buttonIndex).Size = New Size(400, 67)
+            buttons(buttonIndex).Size = New Size(413, 67)
             buttons(buttonIndex).Name = chat.Value
             buttons(buttonIndex).Text = chat.Key 'cannot be created here as it is on the wrong thread so done in the timer
             'Controls.Add(buttons(buttonIndex))

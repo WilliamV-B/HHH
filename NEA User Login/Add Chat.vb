@@ -81,6 +81,8 @@ Public Class Add_Chat
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
 
+        Dim addChatToServer As NetworkStream = client.GetStream
+
         Dim chatName As String = TextBox1.Text
         Dim message(100000) As Byte
         Dim currentIndex As Integer = 5
@@ -94,7 +96,7 @@ Public Class Add_Chat
             currentIndex += 1
         Next
 
-        client.GetStream.Write(message, 0, currentIndex)
+        addChatToServer.Write(message, 0, currentIndex)
     End Sub
 
     Sub textToArray(text As String, ByRef message() As Byte, ByRef startLocation As Integer)
