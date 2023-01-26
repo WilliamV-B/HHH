@@ -44,11 +44,11 @@ Public Class Form3
         Try
             While True
 
-                Dim ns As NetworkStream = client.GetStream()
+                Dim receiveStream As NetworkStream = client.GetStream()
 
-                Dim toReceive(100000) As Byte
-                ns.Read(toReceive, 0, toReceive.Length)
-                Dim txt As String = arrayToString(toReceive)
+                Dim message(100000) As Byte
+                receiveStream.Read(message, 0, message.Length)
+                Dim txt As String = arrayToString(message)
 
                 If RichTextBox1.TextLength > 0 Then
                     RichTextBox1.Text &= vbNewLine & txt
@@ -57,7 +57,7 @@ Public Class Form3
                 End If
             End While
         Catch ex As Exception
-            MsgBox(ex.Message)
+            MessageBox.Show(ex.Message & vbNewLine & "You are likely sending messages too fast, try slowing down.")
         End Try
     End Sub
 
@@ -102,15 +102,18 @@ Public Class Form3
 
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-        Try
-            Dim ns As NetworkStream = client.GetStream
-            ns.Write(stringToArray(TextBox1.Text, 0), 0, TextBox1.Text.Length + 4)
+        If TextBox1.Text <> "" Then
+            Try
 
-            TextBox1.Text = ""
+                Dim ns As NetworkStream = client.GetStream
+                ns.Write(stringToArray(TextBox1.Text, 0), 0, TextBox1.Text.Length + 4)
 
-        Catch ex As Exception
+                TextBox1.Text = ""
 
-        End Try
+            Catch ex As Exception
+
+            End Try
+        End If
     End Sub
 
     Private Sub Form3_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed

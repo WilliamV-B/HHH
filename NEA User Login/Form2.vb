@@ -82,6 +82,7 @@ Public Class Form2
         h.Location = Me.Location
 
         exitServer()
+        serverListener.Abort()
 
         Me.Hide()
     End Sub
