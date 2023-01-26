@@ -66,7 +66,6 @@ Public Class Form3
                         Case 8
                             For n = 1 To message(5)
                                 usersInChat.Add(message(5 + n))
-                                MessageBox.Show(message(5 + n))
                             Next
                     End Select
                 End If
