@@ -14,7 +14,9 @@ Public Class Form3
 
     Dim chatID As Integer
 
-    Dim receiveMessageThread As New thread(AddressOf ReceiveMessages)
+    Dim receiveMessageThread As New Thread(AddressOf ReceiveMessages)
+
+    Dim usersInChat As New List(Of Integer)
 
     Private Sub Form3_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
@@ -34,6 +36,9 @@ Public Class Form3
             receiveMessageThread.Start()
 
             AcceptButton = Button1
+
+            sendToServer("", 8, 0)
+
         Catch ex As Exception
             MsgBox(ex.Message)
         End Try
@@ -48,12 +53,22 @@ Public Class Form3
 
                 Dim message(100000) As Byte
                 receiveStream.Read(message, 0, message.Length)
-                Dim txt As String = arrayToString(message)
 
-                If RichTextBox1.TextLength > 0 Then
-                    RichTextBox1.Text &= vbNewLine & txt
-                Else
-                    RichTextBox1.Text = txt
+                If message IsNot Nothing Then
+                    Select Case message(3)
+                        Case 0
+                            Dim txt As String = arrayToString(message)
+                            If RichTextBox1.TextLength > 0 Then
+                                RichTextBox1.Text &= vbNewLine & txt
+                            Else
+                                RichTextBox1.Text = txt
+                            End If
+                        Case 8
+                            For n = 1 To message(5)
+                                usersInChat.Add(message(5 + n))
+                                MessageBox.Show(message(5 + n))
+                            Next
+                    End Select
                 End If
             End While
         Catch ex As Exception
@@ -75,22 +90,26 @@ Public Class Form3
 
     End Function
 
-    Function stringToArray(message As String, sendmode As Integer)
+    Sub sendToServer(text As String, sendmode As Integer, targetUser As Integer)
 
-        Dim arrayOutput(100000) As Byte
+        Dim sendToServer As NetworkStream = client.GetStream
 
-        arrayOutput(3) = sendmode
+        Dim message(100000) As Byte
+
+        message(0) = chatID
+        message(1) = userID
+        message(3) = sendmode
 
         Dim n As Integer = 4
 
-        For Each H In message
-            arrayOutput(n) = Asc(H)
+        For Each H In text
+            message(n) = Asc(H)
             n += 1
         Next
 
-        Return arrayOutput
+        sendToServer.Write(message, 0, message.Length)
 
-    End Function
+    End Sub
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
         myCaller.Location = Me.Location
@@ -104,9 +123,7 @@ Public Class Form3
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         If TextBox1.Text <> "" Then
             Try
-
-                Dim ns As NetworkStream = client.GetStream
-                ns.Write(stringToArray(TextBox1.Text, 0), 0, TextBox1.Text.Length + 4)
+                sendToServer(TextBox1.Text, 0, 0)
 
                 TextBox1.Text = ""
 
