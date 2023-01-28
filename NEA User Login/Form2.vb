@@ -57,22 +57,29 @@ Public Class Form2
 
     Sub receiveFromServer()
         Dim receiveStream As NetworkStream = client.GetStream
+        Try
+            While True
+                Dim input(100000) As Byte
 
-        While True
-            Dim input(100000) As Byte
+                receiveStream.Read(input, 0, input.Length)
 
-            receiveStream.Read(input, 0, input.Length)
+                If input(3) = 7 Then 'if response from server is in get password mode
 
-            If input(3) = 7 Then 'if response from server is in get password mode
+                    receiveChats(input)
 
-                receiveChats(input)
+                End If
 
-            End If
+            End While
+        Catch ex As Exception
+            MessageBox.Show("ERROR: Something went wrong")
+            Application.Exit()
+            End
+        End Try
 
-        End While
     End Sub
 
     Protected Sub ButtonClick(ByVal sender As System.Object, ByVal e As System.EventArgs)
+
         selectedChat = chats(sender.text)
 
         Dim h As New Form3
@@ -85,6 +92,7 @@ Public Class Form2
         serverListener.Abort()
 
         Me.Hide()
+
     End Sub
 
     Private Sub Form2_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
@@ -177,6 +185,7 @@ Public Class Form2
 
         CheckForIllegalCrossThreadCalls = False
 
+        buttons = Nothing
         requestChats()
 
         If serverListener.IsAlive Then

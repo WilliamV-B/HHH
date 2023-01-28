@@ -71,7 +71,9 @@ Public Class Form3
                 End If
             End While
         Catch ex As Exception
+            goBackToMenu()
             MessageBox.Show(ex.Message & vbNewLine & "You are likely sending messages too fast, try slowing down.")
+
         End Try
     End Sub
 
@@ -110,11 +112,16 @@ Public Class Form3
 
     End Sub
 
-    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+    Sub goBackToMenu()
+
         myCaller.Location = Me.Location
         myCaller.Show()
         myCaller.startClient()
-        exitServer()
+        Try
+            exitServer()
+        Catch ex As Exception
+        End Try
+
         Me.Hide()
     End Sub
 
@@ -145,7 +152,12 @@ Public Class Form3
         exitRequest(3) = 5
 
         byteStream.Write(exitRequest, 0, exitRequest.Length)
+        receiveMessageThread.Abort()
 
     End Sub
 
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        goBackToMenu()
+
+    End Sub
 End Class
