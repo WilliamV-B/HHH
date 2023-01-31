@@ -18,6 +18,8 @@ Public Class Form3
 
     Dim usersInChat As New List(Of Integer)
 
+    Dim users As New Dictionary(Of Integer, String)
+
     Private Sub Form3_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         Label1.Text = myCaller.selectedChat
@@ -26,7 +28,7 @@ Public Class Form3
         chatID = myCaller.selectedChat
 
         Try
-            Dim ip As String = "147.147.67.93"
+            Dim ip As String = "195.213.193.165"
             Dim port As Integer = 50005
 
             client = New TcpClient(ip, port)
@@ -37,11 +39,31 @@ Public Class Form3
 
             AcceptButton = Button1
 
-            sendToServer("", 8, 0)
-
+            sendToServer("", 8, 0) 'get all IDs on the current chat
+            sendToServer("", 1, 0) 'get all IDs with their corresponding users
         Catch ex As Exception
             MsgBox(ex.Message)
         End Try
+
+    End Sub
+
+    Sub arrayToUsers(message() As Byte)
+
+        Dim currentIndex As Integer = 4
+
+        While message(currentIndex) <> Nothing
+            Dim userLength As Integer = message(currentIndex)
+            currentIndex += 1
+            Dim ID As Integer = message(currentIndex)
+            Dim username As String = Nothing
+            currentIndex += 1
+            For n = 2 To userLength
+                username += Chr(message(currentIndex))
+                currentIndex += 1
+            Next
+            users.Add(ID, username)
+
+        End While
 
     End Sub
 
@@ -56,32 +78,35 @@ Public Class Form3
 
                 If message IsNot Nothing Then
                     Select Case message(3)
-                        Case 0
+                        Case 10
                             Dim txt As String = arrayToString(message)
                             If RichTextBox1.TextLength > 0 Then
                                 RichTextBox1.Text &= vbNewLine & txt
                             Else
                                 RichTextBox1.Text = txt
                             End If
+                        Case 1
+                            arrayToUsers(message)
                         Case 8
                             For n = 1 To message(5)
                                 usersInChat.Add(message(5 + n))
+
                             Next
                     End Select
                 End If
             End While
         Catch ex As Exception
-            goBackToMenu()
             MessageBox.Show(ex.Message & vbNewLine & "You are likely sending messages too fast, try slowing down.")
+            'goBackToMenu()
 
         End Try
     End Sub
 
     Function arrayToString(message() As Byte)
 
-        Dim stringOutput As String = Nothing
+        Dim stringOutput As String = users(message(1)) & ": "
 
-        For n = 0 To message.Length - 1
+        For n = 4 To message.Length - 1
             If message(n) <> Nothing Then
                 stringOutput += Chr(message(n))
             End If
@@ -99,6 +124,7 @@ Public Class Form3
 
         message(0) = chatID
         message(1) = userID
+        message(2) = targetUser
         message(3) = sendmode
 
         Dim n As Integer = 4
@@ -129,7 +155,9 @@ Public Class Form3
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         If TextBox1.Text <> "" Then
             Try
-                sendToServer(TextBox1.Text, 0, 0)
+                For Each user In usersInChat
+                    sendToServer(TextBox1.Text, 10, user)
+                Next
 
                 TextBox1.Text = ""
 
@@ -141,8 +169,6 @@ Public Class Form3
 
     Private Sub Form3_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
         exitServer()
-        Application.Exit()
-        End
     End Sub
 
     Sub exitServer()
@@ -156,8 +182,16 @@ Public Class Form3
 
     End Sub
 
-    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        goBackToMenu()
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click 'back button
+        'goBackToMenu()
+
+    End Sub
+
+    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
+
+    End Sub
+
+    Private Sub RichTextBox1_TextChanged(sender As Object, e As EventArgs) Handles RichTextBox1.TextChanged
 
     End Sub
 End Class

@@ -13,7 +13,7 @@ Public Class Add_Chat
 
     Private Sub Add_Chat_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
-            client = New TcpClient("147.147.67.93", 50005)
+            client = New TcpClient("195.213.193.165", 50005)
 
             CheckForIllegalCrossThreadCalls = False
 
@@ -97,6 +97,8 @@ Public Class Add_Chat
         Next
 
         addChatToServer.Write(message, 0, currentIndex)
+
+        Me.Close()
     End Sub
 
     Sub textToArray(text As String, ByRef message() As Byte, ByRef startLocation As Integer)

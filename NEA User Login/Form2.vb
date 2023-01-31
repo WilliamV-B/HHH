@@ -71,7 +71,7 @@ Public Class Form2
 
             End While
         Catch ex As Exception
-            MessageBox.Show("ERROR: Something went wrong")
+            MessageBox.Show(ex.Message & vbNewLine & "ERROR: Something went wrong")
             Application.Exit()
             End
         End Try
@@ -88,10 +88,10 @@ Public Class Form2
         h.Show()
         h.Location = Me.Location
 
-        exitServer()
-        serverListener.Abort()
+        'exitServer()
+        'serverListener.Abort()
 
-        Me.Hide()
+        'Me.Hide()
 
     End Sub
 
@@ -181,7 +181,7 @@ Public Class Form2
 
     Sub startClient()
 
-        client = New TcpClient("147.147.67.93", 50005)
+        client = New TcpClient("195.213.193.165", 50005)
 
         CheckForIllegalCrossThreadCalls = False
 
