@@ -37,10 +37,15 @@ Public Class Form3
 
             receiveMessageThread.Start()
 
-            AcceptButton = Button1
+            sendToServer("", 1, 0) 'get all IDs with their corresponding users
+
+            Thread.Sleep(100)
 
             sendToServer("", 8, 0) 'get all IDs on the current chat
-            sendToServer("", 1, 0) 'get all IDs with their corresponding users
+
+            AcceptButton = Button1
+
+
         Catch ex As Exception
             MsgBox(ex.Message)
         End Try
@@ -61,7 +66,11 @@ Public Class Form3
                 username += Chr(message(currentIndex))
                 currentIndex += 1
             Next
-            users.Add(ID, username)
+            If users.ContainsKey(ID) = False Then
+                users.Add(ID, username)
+            Else : MessageBox.Show("already added user: " & username & " to the user list")
+            End If
+
 
         End While
 
@@ -194,4 +203,5 @@ Public Class Form3
     Private Sub RichTextBox1_TextChanged(sender As Object, e As EventArgs) Handles RichTextBox1.TextChanged
 
     End Sub
+
 End Class
