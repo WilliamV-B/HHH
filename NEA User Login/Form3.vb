@@ -39,9 +39,13 @@ Public Class Form3
 
             sendToServer("", 1, 0) 'get all IDs with their corresponding users
 
-            Thread.Sleep(100)
+            Thread.Sleep(1000)
 
             sendToServer("", 8, 0) 'get all IDs on the current chat
+
+            Thread.Sleep(1000)
+
+            sendToServer("", 2, 0) 'get all previous messages from current chat
 
             AcceptButton = Button1
 
@@ -163,9 +167,11 @@ Public Class Form3
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         If TextBox1.Text <> "" Then
+            Button1.Enabled = False
             Try
                 For Each user In usersInChat
                     sendToServer(TextBox1.Text, 10, user)
+                    Thread.Sleep(100)
                 Next
 
                 TextBox1.Text = ""
@@ -174,6 +180,7 @@ Public Class Form3
 
             End Try
         End If
+        Button1.Enabled = True
     End Sub
 
     Private Sub Form3_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
