@@ -28,7 +28,7 @@ Public Class Form3
         chatID = myCaller.selectedChat
 
         Try
-            Dim ip As String = "195.213.193.165"
+            Dim ip As String = "195.99.55.53"
             Dim port As Integer = 50005
 
             client = New TcpClient(ip, port)
