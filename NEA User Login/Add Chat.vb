@@ -11,6 +11,8 @@ Public Class Add_Chat
 
     Dim chats As New Dictionary(Of String, Integer)
 
+    Dim privateKey() As Integer
+
     Private Sub Add_Chat_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
             client = New TcpClient("195.99.55.53", 50005)

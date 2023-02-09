@@ -18,14 +18,17 @@ Public Class Form3
 
     Dim usersInChat As New List(Of Integer)
 
-    Dim users As New Dictionary(Of Integer, String)
+    Dim users As New List(Of user)
+
+    Dim privateKey() As Integer
 
     Private Sub Form3_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
-        Label1.Text = myCaller.selectedChat
+        Label1.Text = myCaller.selectedChatName
 
         userID = myCaller.userID
         chatID = myCaller.selectedChat
+        privateKey = myCaller.privateKey
 
         Try
             Dim ip As String = "195.99.55.53"
@@ -36,10 +39,6 @@ Public Class Form3
             CheckForIllegalCrossThreadCalls = False
 
             receiveMessageThread.Start()
-
-            sendToServer("", 1, 0) 'get all IDs with their corresponding users
-
-            Thread.Sleep(1000)
 
             sendToServer("", 8, 0) 'get all IDs on the current chat
 
@@ -56,30 +55,6 @@ Public Class Form3
 
     End Sub
 
-    Sub arrayToUsers(message() As Byte)
-
-        Dim currentIndex As Integer = 4
-
-        While message(currentIndex) <> Nothing
-            Dim userLength As Integer = message(currentIndex)
-            currentIndex += 1
-            Dim ID As Integer = message(currentIndex)
-            Dim username As String = Nothing
-            currentIndex += 1
-            For n = 2 To userLength
-                username += Chr(message(currentIndex))
-                currentIndex += 1
-            Next
-            If users.ContainsKey(ID) = False Then
-                users.Add(ID, username)
-            Else : MessageBox.Show("already added user: " & username & " to the user list")
-            End If
-
-
-        End While
-
-    End Sub
-
     Private Sub ReceiveMessages(state As Object)
         Try
             While True
@@ -91,37 +66,59 @@ Public Class Form3
 
                 If message IsNot Nothing Then
                     Select Case message(3)
-                        Case 10
+                        Case 10 'if in receive a message mode
                             Dim txt As String = arrayToString(message)
                             If RichTextBox1.TextLength > 0 Then
                                 RichTextBox1.Text &= vbNewLine & txt
                             Else
                                 RichTextBox1.Text = txt
                             End If
-                        Case 1
-                            arrayToUsers(message)
-                        Case 8
-                            For n = 1 To message(5)
-                                usersInChat.Add(message(5 + n))
+                        Case 8 'if in the mode to receive the users in chat from the server
+                            Dim currentIndex As Integer = 6
 
+                            For count = 1 To message(5)
+
+                                Dim userID As Integer = message(currentIndex)
+                                currentIndex += 1
+                                Dim j As Integer = message(currentIndex)
+                                currentIndex += 1
+                                Dim n As Integer = message(currentIndex)
+                                currentIndex += 1
+                                Dim username As String = Nothing
+                                For index = 1 To message(currentIndex)
+                                    currentIndex += 1
+                                    username += Chr(message(currentIndex))
+                                Next
+                                usersInChat.Add(userID)
+                                users.Add(New user(n, j, userID, username))
+                                currentIndex += 1
                             Next
                     End Select
                 End If
             End While
         Catch ex As Exception
             MessageBox.Show(ex.Message & vbNewLine & "You are likely sending messages too fast, try slowing down.")
-            'goBackToMenu()
+            Me.Close()
 
         End Try
     End Sub
 
     Function arrayToString(message() As Byte)
 
-        Dim stringOutput As String = users(message(1)) & ": "
+        Dim senderUsername As String = Nothing
+
+        For Each user In users
+            If user.GetID = message(1) Then
+                senderUsername = user.GetUsername
+            End If
+        Next
+
+        Dim stringOutput As String = senderUsername & ": "
 
         For n = 4 To message.Length - 1
             If message(n) <> Nothing Then
-                stringOutput += Chr(message(n))
+                stringOutput += Chr(moduloExponent(message(n), privateKey(0), privateKey(1)))
+
             End If
         Next
 
@@ -129,27 +126,70 @@ Public Class Form3
 
     End Function
 
-    Sub sendToServer(text As String, sendmode As Integer, targetUser As Integer)
+    Sub sendToServer(text As String, sendmode As Integer, targetUserID As Integer)
 
-        Dim sendToServer As NetworkStream = client.GetStream
+        Dim ServerConnection As NetworkStream = client.GetStream
 
         Dim message(100000) As Byte
 
         message(0) = chatID
         message(1) = userID
-        message(2) = targetUser
+        message(2) = targetUserID
         message(3) = sendmode
 
-        Dim n As Integer = 4
+        Dim targetUserKey() As Integer
 
-        For Each H In text
-            message(n) = Asc(H)
-            n += 1
+        For Each user In users
+            If user.GetID = targetUserID Then
+                targetUserKey = user.GetKey
+            End If
         Next
 
-        sendToServer.Write(message, 0, message.Length)
+        Dim index As Integer = 4
+
+        For Each H In text
+            message(index) = moduloExponent(Asc(H), targetUserKey(0), targetUserKey(1))
+            index += 1
+        Next
+
+        ServerConnection.Write(message, 0, message.Length)
 
     End Sub
+
+    Function moduloExponent(number As Integer, exponent As Integer, modulus As Integer)
+
+        Dim newNumber As Double = calcFactors(number, exponent, modulus) 'find the simplified version of H^j/H^k
+
+        newNumber = newNumber Mod modulus 'find modulus of H^j/H^k and n
+
+        Return newNumber
+
+    End Function
+
+    Function calcFactors(number, exponent, modulus)
+        Dim num As Integer = exponent
+        Dim output As Double = 1
+        While num <> 0 'calculate each factor in descending order
+            Dim e As Integer = 0
+            While 2 ^ e <= num
+                e += 1
+            End While
+            e -= 1
+            output *= squareSimplify(number, e, modulus) 'simplify each factor and multiply to output as exponents
+            output = output Mod modulus 'mods it to stop it from getting too big 
+            num -= 2 ^ e
+        End While
+        Return output
+    End Function
+
+    Function squareSimplify(number, times, modulus)
+        For x = 1 To times 'squares it the amount necessary
+            number ^= 2
+
+            number = number Mod modulus 'mods it to stop it from getting too big
+        Next
+        Return number
+    End Function
 
     Sub goBackToMenu()
 
@@ -168,19 +208,21 @@ Public Class Form3
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         If TextBox1.Text <> "" Then
             Button1.Enabled = False
+            AcceptButton = Nothing
             Try
-                For Each user In usersInChat
-                    sendToServer(TextBox1.Text, 10, user)
+                For Each user In users
+                    sendToServer(TextBox1.Text, 10, user.GetID)
                     Thread.Sleep(100)
                 Next
 
                 TextBox1.Text = ""
 
             Catch ex As Exception
-
+                MessageBox.Show(ex.Message)
             End Try
         End If
         Button1.Enabled = True
+        AcceptButton = Button1
     End Sub
 
     Private Sub Form3_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
@@ -188,27 +230,52 @@ Public Class Form3
     End Sub
 
     Sub exitServer()
-        Dim byteStream As NetworkStream = client.GetStream
+        Try
+            Dim byteStream As NetworkStream = client.GetStream
 
-        Dim exitRequest(10) As Byte
-        exitRequest(3) = 5
+            Dim exitRequest(10) As Byte
+            exitRequest(3) = 5
 
-        byteStream.Write(exitRequest, 0, exitRequest.Length)
+            byteStream.Write(exitRequest, 0, exitRequest.Length)
+
+        Catch ex As Exception
+
+        End Try
         receiveMessageThread.Abort()
 
     End Sub
 
-    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click 'back button
-        'goBackToMenu()
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        MessageBox.Show(privateKey(0) & " " & privateKey(1))
+    End Sub
+End Class
 
+Class user
+    Dim n As Integer
+    Dim j As Integer
+
+    Dim userID As Integer
+    Dim username As String
+
+    Sub New(nn As Integer, jj As Integer, ID As Integer, name As String)
+        n = nn
+        j = jj
+        userID = ID
+        username = name
     End Sub
 
-    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
+    Function GetKey()
+        Dim key(1) As Integer
+        key(0) = j
+        key(1) = n
+        Return key
+    End Function
 
-    End Sub
+    Function GetID()
+        Return userID
+    End Function
 
-    Private Sub RichTextBox1_TextChanged(sender As Object, e As EventArgs) Handles RichTextBox1.TextChanged
-
-    End Sub
-
+    Function GetUsername()
+        Return username
+    End Function
 End Class

@@ -7,6 +7,9 @@ Public Class Form2
     Public myCaller As Form1
 
     Public selectedChat As Integer
+    Public selectedChatName As String
+
+    Public privateKey() As Integer
 
     Dim buttons() As Button = Nothing
     Dim buttonsBuffer() As Button = Nothing
@@ -20,23 +23,19 @@ Public Class Form2
     Dim chats As New Dictionary(Of String, Integer)
 
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
-        Dim h As New Form1
-
         exitServer()
-        h.Location = Me.Location
-        h.Show()
-
-        h.myCaller = Me
-        Me.Hide()
-
+        System.Diagnostics.Process.Start(Application.ExecutablePath)
+        Application.Exit()
+        End
     End Sub
 
     Private Sub Form2_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Label1.Text = "logged in as: " & myCaller.TextBox2.Text
         userID = myCaller.userID
+        privateKey = myCaller.privateKey
 
         Try
-            startClient()
+        startClient()
 
         Catch ex As Exception
             MsgBox("Could not connect to server, make sure it is online.")
@@ -63,7 +62,7 @@ Public Class Form2
 
                 receiveStream.Read(input, 0, input.Length)
 
-                If input(3) = 7 Then 'if response from server is in get password mode
+                If input(3) = 7 Then 'if response from server is in get chat mode
 
                     receiveChats(input)
 
@@ -72,7 +71,7 @@ Public Class Form2
             End While
         Catch ex As Exception
             MessageBox.Show(ex.Message & vbNewLine & "ERROR: Something went wrong")
-            Application.Exit()
+            Application.Restart()
             End
         End Try
 
@@ -81,17 +80,13 @@ Public Class Form2
     Protected Sub ButtonClick(ByVal sender As System.Object, ByVal e As System.EventArgs)
 
         selectedChat = chats(sender.text)
+        selectedChatName = sender.text
 
         Dim h As New Form3
 
         h.myCaller = Me
         h.Show()
         h.Location = Me.Location
-
-        'exitServer()
-        'serverListener.Abort()
-
-        'Me.Hide()
 
     End Sub
 
