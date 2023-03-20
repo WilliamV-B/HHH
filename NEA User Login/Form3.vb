@@ -31,7 +31,7 @@ Public Class Form3
         privateKey = myCaller.privateKey
 
         Try
-            Dim ip As String = "195.99.55.53"
+            Dim ip As String = "147.147.67.94"
             Dim port As Integer = 50005
 
             client = New TcpClient(ip, port)
@@ -137,7 +137,7 @@ Public Class Form3
         message(2) = targetUserID
         message(3) = sendmode
 
-        Dim targetUserKey() As Integer
+        Dim targetUserKey() As Integer = Nothing
 
         For Each user In users
             If user.GetID = targetUserID Then
@@ -245,8 +245,12 @@ Public Class Form3
 
     End Sub
 
-    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+    Private Sub Button2_Click(sender As Object, e As EventArgs)
         MessageBox.Show(privateKey(0) & " " & privateKey(1))
+    End Sub
+
+    Private Sub RichTextBox1_LinkClicked(sender As Object, e As LinkClickedEventArgs) Handles RichTextBox1.LinkClicked
+        Process.Start(e.LinkText)
     End Sub
 End Class
 

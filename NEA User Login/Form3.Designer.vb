@@ -26,7 +26,6 @@ Partial Class Form3
         Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.Button1 = New System.Windows.Forms.Button()
         Me.Label1 = New System.Windows.Forms.Label()
-        Me.Button2 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'RichTextBox1
@@ -66,31 +65,21 @@ Partial Class Form3
         Me.Label1.AutoSize = True
         Me.Label1.Location = New System.Drawing.Point(206, 9)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(39, 13)
+        Me.Label1.Size = New System.Drawing.Size(29, 13)
         Me.Label1.TabIndex = 4
-        Me.Label1.Text = "Label1"
-        '
-        'Button2
-        '
-        Me.Button2.Location = New System.Drawing.Point(23, 4)
-        Me.Button2.Name = "Button2"
-        Me.Button2.Size = New System.Drawing.Size(75, 23)
-        Me.Button2.TabIndex = 5
-        Me.Button2.Text = "Button2"
-        Me.Button2.UseVisualStyleBackColor = True
+        Me.Label1.Text = "Chat"
         '
         'Form3
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(459, 532)
-        Me.Controls.Add(Me.Button2)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.TextBox1)
         Me.Controls.Add(Me.RichTextBox1)
         Me.Name = "Form3"
-        Me.Text = "Form3"
+        Me.Text = "Chat"
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -99,5 +88,4 @@ Partial Class Form3
     Friend WithEvents TextBox1 As System.Windows.Forms.TextBox
     Friend WithEvents Button1 As System.Windows.Forms.Button
     Friend WithEvents Label1 As System.Windows.Forms.Label
-    Friend WithEvents Button2 As Button
 End Class

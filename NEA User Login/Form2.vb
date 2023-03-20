@@ -176,7 +176,7 @@ Public Class Form2
 
     Sub startClient()
 
-        client = New TcpClient("195.99.55.53", 50005)
+        client = New TcpClient("147.147.67.94", 50005)
 
         CheckForIllegalCrossThreadCalls = False
 

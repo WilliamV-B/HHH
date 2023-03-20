@@ -15,7 +15,7 @@ Public Class Form1
 
     Public privateKey(1) As Integer
 
-    Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
+    Private Sub CheckBoxChange(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
         If CheckBox1.Checked = True Then
             TextBox1.PasswordChar = Nothing
         Else
@@ -23,10 +23,10 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub FormLoad(sender As Object, e As EventArgs) Handles MyBase.Load
 
         Try
-            client = New TcpClient("195.99.55.53", 50005)
+            client = New TcpClient("147.147.67.94", 50005)
 
             CheckForIllegalCrossThreadCalls = False
 
@@ -39,23 +39,26 @@ Public Class Form1
 
     End Sub
 
-    Sub checkUsernamePassword() Handles Button1.Click
-
-        sendAccountToServer(3)
+    Sub CheckUsernamePassword() Handles Button1.Click
+        If TextBox2.Text.Contains(" ") Or TextBox1.Text.Contains(" ") Then
+            MessageBox.Show("INVALID USERNAME OR PASSWORD: Please Remove All Spaces In Username.")
+        Else
+            SendAccountToServer(3)
+        End If
 
     End Sub
 
-    Private Sub createNewUser() Handles Button2.Click
-        If TextBox2.Text.Contains(" ") Then
-            MessageBox.Show("INVALID USERNAME: Please Remove All Spaces In Username.")
+    Private Sub CreateNewUser() Handles Button2.Click
+        If TextBox2.Text.Contains(" ") Or TextBox1.Text.Contains(" ") Then
+            MessageBox.Show("INVALID USERNAME OR PASSWORD: Please Remove All Spaces In Username.")
         Else
-            sendAccountToServer(4)
+            SendAccountToServer(4)
         End If
 
 
     End Sub
 
-    Sub exitServer()
+    Sub ExitServer()
         Dim byteStream As NetworkStream = client.GetStream
 
         Dim exitRequest(10) As Byte
@@ -65,7 +68,7 @@ Public Class Form1
 
     End Sub
 
-    Sub receiveFromServer()
+    Sub ReceiveFromServer()
         Dim receiveStream As NetworkStream = client.GetStream
 
         While True
@@ -79,7 +82,7 @@ Public Class Form1
 
                     userID = input(5)
                     privateKey = {input(6), input(7)}
-                    exitServer()
+                    ExitServer()
                     Exit While
                 Else
                     MessageBox.Show("Incorrect Username or Password.")
@@ -96,14 +99,14 @@ Public Class Form1
 
     End Sub
 
-    Sub textToArray(text As String, ByRef message() As Byte, ByRef startLocation As Integer)
+    Sub TextToArray(text As String, ByRef message() As Byte, ByRef startLocation As Integer)
         For Each character In text
             message(startLocation) = Asc(character)
             startLocation += 1
         Next
     End Sub
 
-    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
+    Private Sub TimerTicks(sender As Object, e As EventArgs) Handles Timer1.Tick
         If userID <> Nothing And isActive Then
             Dim h As New Form2
             h.myCaller = Me
@@ -115,16 +118,17 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub Form1_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+    Private Sub ClosingForm(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         Application.Exit()
         End
     End Sub
 
-    Sub sendAccountToServer(sendmode As Integer)
+    Sub SendAccountToServer(sendmode As Integer)
 
         Dim byteStream As NetworkStream = client.GetStream
 
         Dim username As String = TextBox2.Text
+
         Dim password As String = TextBox1.Text
 
         Dim currentIndex As Integer = 5
@@ -133,12 +137,12 @@ Public Class Form1
         message(3) = sendmode
         message(4) = username.Length
 
-        textToArray(username, message, currentIndex)
+        TextToArray(username, message, currentIndex)
 
         message(currentIndex) = password.Length
         currentIndex += 1
 
-        textToArray(password, message, currentIndex)
+        TextToArray(password, message, currentIndex)
 
         byteStream.Write(message, 0, currentIndex)
 

@@ -15,7 +15,7 @@ Public Class Add_Chat
 
     Private Sub Add_Chat_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
-            client = New TcpClient("195.99.55.53", 50005)
+            client = New TcpClient("147.147.67.94", 50005)
 
             CheckForIllegalCrossThreadCalls = False
 
@@ -82,25 +82,28 @@ Public Class Add_Chat
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        If TextBox1.Text <> Nothing And CheckedListBox1.CheckedItems.Count <> Nothing Then
+            Dim addChatToServer As NetworkStream = client.GetStream
 
-        Dim addChatToServer As NetworkStream = client.GetStream
+            Dim chatName As String = TextBox1.Text
+            Dim message(100000) As Byte
+            Dim currentIndex As Integer = 5
 
-        Dim chatName As String = TextBox1.Text
-        Dim message(100000) As Byte
-        Dim currentIndex As Integer = 5
+            message(3) = 6
+            message(4) = chatName.Length
 
-        message(3) = 6
-        message(4) = chatName.Length
+            textToArray(chatName, message, currentIndex)
+            For Each user In CheckedListBox1.CheckedItems
+                message(currentIndex) = users(user)
+                currentIndex += 1
+            Next
 
-        textToArray(chatName, message, currentIndex)
-        For Each user In CheckedListBox1.CheckedItems
-            message(currentIndex) = users(user)
-            currentIndex += 1
-        Next
+            addChatToServer.Write(message, 0, currentIndex)
 
-        addChatToServer.Write(message, 0, currentIndex)
-
-        Me.Close()
+            Me.Close()
+        Else
+            MessageBox.Show("Invalid Chat, Make sure to include a chat name and users.")
+        End If
     End Sub
 
     Sub textToArray(text As String, ByRef message() As Byte, ByRef startLocation As Integer)
